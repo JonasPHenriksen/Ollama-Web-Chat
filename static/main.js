@@ -84,15 +84,26 @@ async function startNewChat() {
 async function deleteChat(event, chatId) {
     event.stopPropagation();
     if (!confirm("Are you sure you want to delete this chat?")) return;
+
     try {
         const res = await fetch(`/delete_chat/${chatId}`, { method: 'POST' });
-        const data = await res.json();
-        if (data.new_chat_id) {
-            await loadChatList();
-            await switchChat(data.new_chat_id);
+        const responseData = await res.json();
+
+        // Reload the chat list
+        await loadChatList();
+
+        const chatListItems = document.getElementById("chat-list-items");
+        if (chatListItems.children.length > 0) {
+            // Switch to the first remaining chat
+            const firstChatId = chatListItems.children[0].querySelector('.chat-item').dataset.id;
+            await switchChat(firstChatId);
         } else {
-            await loadChatList();
+            // No chats left: clear chat window
+            document.getElementById("chat").innerHTML = "";
+            document.getElementById("model").disabled = false;
+            currentChatId = null;
         }
+
     } catch (error) {
         alert("Error deleting chat: " + error.message);
     }
@@ -101,7 +112,10 @@ async function deleteChat(event, chatId) {
 async function loadChatHistory() {
     try {
         const res = await fetch("/history");
-        const history = await res.json();
+        const data = await res.json();
+        const history = data.history;
+        const savedModel = data.model;
+
         const chat = document.getElementById("chat");
         chat.innerHTML = "";
         history.forEach(msg => {
@@ -112,7 +126,11 @@ async function loadChatHistory() {
         chat.scrollTop = chat.scrollHeight;
 
         const modelSelect = document.getElementById("model");
+        if (savedModel) modelSelect.value = savedModel;
+
+        // Disable changing model if chat is not empty
         modelSelect.disabled = history.length > 0;
+
     } catch (error) {
         console.error("Error loading chat history:", error);
     }

@@ -26,6 +26,14 @@ def load_chat_history(user_id):
     return all_histories.get(user_id, {"title": "New Chat", "history": []})
 
 def save_chat_history(user_id, chat_data):
+    """
+    chat_data now can have:
+    {
+        "title": "Chat title",
+        "history": [...],
+        "model": "gemma:7b"
+    }
+    """
     all_histories = load_all_chat_histories()
     all_histories[user_id] = chat_data
     save_all_chat_histories(all_histories)

@@ -11,11 +11,14 @@ def get_history():
     if not user_id:
         user_id = os.urandom(16).hex()
         session['current_chat_id'] = user_id
-        save_chat_history(user_id, {"title": "New Chat", "history": []})
-        return jsonify([])
+        save_chat_history(user_id, {"title": "New Chat", "history": [], "model": None})
 
     chat_data = load_chat_history(user_id)
-    return jsonify(chat_data["history"])
+    
+    return jsonify({
+        "history": chat_data.get("history", []),
+        "model": chat_data.get("model", None)
+    })
 
 @chat_bp.route("/ask", methods=["POST"])
 def ask():
@@ -32,6 +35,7 @@ def ask():
     if user_id not in all_histories or not all_histories[user_id]["history"]:
         title = generate_chat_title(prompt, model)
         all_histories[user_id] = {"title": title, "history": []}
+        all_histories[user_id]["model"] = model
 
     all_histories[user_id]["history"].append({"role": "user", "content": prompt})
 
