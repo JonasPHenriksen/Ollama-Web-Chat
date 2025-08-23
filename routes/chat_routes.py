@@ -42,7 +42,7 @@ def ask():
     conversation_text = "\n".join([f"{msg['role'].capitalize()}: {msg['content']}" for msg in all_histories[user_id]["history"]])
 
     try:
-        process = subprocess.run(["ollama", "run", model],
+        process = subprocess.run(["ollama", "run", model, "--think=false"],
                                  input=conversation_text,
                                  capture_output=True,
                                  text=True,
