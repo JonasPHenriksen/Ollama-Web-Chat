@@ -189,4 +189,18 @@ document.getElementById("prompt").addEventListener("keydown", function(event) {
     }
 });
 
+async function updateVRAM() {
+    try {
+        const res = await fetch("/system/vram"); 
+        const data = await res.json();
+        document.getElementById("vram-usage").textContent =
+            `VRAM Usage: ${data.vram_used_mb} / ${data.vram_total_mb} MB`;
+    } catch (err) {
+        console.error("Failed to fetch VRAM usage", err);
+    }
+}
+
+setInterval(updateVRAM, 2000);
+updateVRAM();  
+
 window.onload = loadModels;

@@ -46,7 +46,7 @@ def generate_chat_title(prompt, model="gemma:4b"):
             f"User message: '{prompt}'"
         )
         title_process = subprocess.run(
-            ["ollama", "run", model],
+            ["ollama", "run", model, "--think=false"],
             input=title_prompt,
             capture_output=True,
             text=True,
