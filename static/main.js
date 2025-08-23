@@ -89,16 +89,13 @@ async function deleteChat(event, chatId) {
         const res = await fetch(`/delete_chat/${chatId}`, { method: 'POST' });
         const responseData = await res.json();
 
-        // Reload the chat list
         await loadChatList();
 
         const chatListItems = document.getElementById("chat-list-items");
         if (chatListItems.children.length > 0) {
-            // Switch to the first remaining chat
             const firstChatId = chatListItems.children[0].querySelector('.chat-item').dataset.id;
             await switchChat(firstChatId);
         } else {
-            // No chats left: clear chat window
             document.getElementById("chat").innerHTML = "";
             document.getElementById("model").disabled = false;
             currentChatId = null;
@@ -137,7 +134,6 @@ async function loadChatHistory() {
         console.error("Error loading chat history:", error);
     }
 }
-
 
 function escapeHtml(text) {
     return text
