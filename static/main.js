@@ -121,20 +121,23 @@ async function loadChatHistory() {
         history.forEach(msg => {
             const role = msg.role === "user" ? "You" : "AI";
             const className = msg.role === "user" ? "user" : "ai";
-            chat.innerHTML += `<div class="${className}"><strong>${role}:</strong> ${marked.parse(msg.content)}</div>`;
+
+            if (msg.role === "user") {
+                chat.innerHTML += `<div class="${className}"><strong>${role}:</strong><pre><code>${escapeHtml(msg.content)}</code></pre></div>`;
+            } else {
+                chat.innerHTML += `<div class="${className}"><strong>${role}:</strong> ${marked.parse(msg.content)}</div>`;
+            }
         });
         chat.scrollTop = chat.scrollHeight;
 
         const modelSelect = document.getElementById("model");
         if (savedModel) modelSelect.value = savedModel;
-
-        // Disable changing model if chat is not empty
         modelSelect.disabled = history.length > 0;
-
     } catch (error) {
         console.error("Error loading chat history:", error);
     }
 }
+
 
 function escapeHtml(text) {
     return text
@@ -162,7 +165,7 @@ async function sendPrompt() {
 
         const data = await res.text();
 
-        chat.innerHTML += `<div class="ai"><strong>AI:</strong><pre><code>${escapeHtml(data)}</code></pre></div>`;
+        chat.innerHTML += `<div class="ai"><strong>AI:</strong> ${marked.parse(data)}</div>`;
         chat.scrollTop = chat.scrollHeight;
 
         loadChatList();
