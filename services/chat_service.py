@@ -31,7 +31,7 @@ def save_chat_history(user_id, chat_data):
     {
         "title": "Chat title",
         "history": [...],
-        "model": "gemma:7b"
+        "model": "gemma:4b"
     }
     """
     all_histories = load_all_chat_histories()

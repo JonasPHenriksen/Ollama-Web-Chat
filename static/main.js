@@ -93,8 +93,8 @@ async function deleteChat(event, chatId) {
 
         const chatListItems = document.getElementById("chat-list-items");
         if (chatListItems.children.length > 0) {
-            const firstChatId = chatListItems.children[0].querySelector('.chat-item').dataset.id;
-            await switchChat(firstChatId);
+            const firstChatId = chatListItems.children[0].dataset.id;
+            if (firstChatId) await switchChat(firstChatId);
         } else {
             document.getElementById("chat").innerHTML = "";
             document.getElementById("model").disabled = false;
@@ -153,18 +153,29 @@ async function sendPrompt() {
     document.getElementById("prompt").value = "";
 
     try {
-        const res = await fetch("/ask", {
+        const res = await fetch("/ask_stream", {
             method: "POST",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({model, prompt})
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ prompt, model })
         });
 
-        const data = await res.text();
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
 
-        chat.innerHTML += `<div class="ai"><strong>AI:</strong> ${marked.parse(data)}</div>`;
-        chat.scrollTop = chat.scrollHeight;
+        const aiDiv = document.createElement("div");
+        aiDiv.className = "ai";
+        aiDiv.innerHTML = "<strong>AI:</strong> ";
+        chat.appendChild(aiDiv);
 
-        loadChatList();
+        let result = "";
+        while (true) {
+            const { value, done } = await reader.read();
+            if (done) break;
+            result += decoder.decode(value, { stream: true });
+            aiDiv.innerHTML = "<strong>AI:</strong> " + marked.parse(result);
+            chat.scrollTop = chat.scrollHeight;
+        }
+
     } catch (error) {
         chat.innerHTML += `<div class="ai"><strong>Error:</strong><pre><code>${escapeHtml(error.message)}</code></pre></div>`;
         chat.scrollTop = chat.scrollHeight;
@@ -200,7 +211,26 @@ async function updateVRAM() {
     }
 }
 
-setInterval(updateVRAM, 2000);
+setInterval(updateVRAM, 5000);
 updateVRAM();  
+
+async function askStream(prompt, model="gemma:4b") {
+    const res = await fetch("/chat/ask_stream", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({prompt, model})
+    });
+
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let result = "";
+    
+    while (true) {
+        const {value, done} = await reader.read();
+        if (done) break;
+        result += decoder.decode(value);
+        document.getElementById("chat").textContent = result; 
+    }
+}
 
 window.onload = loadModels;
