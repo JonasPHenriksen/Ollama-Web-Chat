@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Ollama Web Chat</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <h1>Ollama Web Chat</h1>
+    <div id="chat-container">
+        <div id="chat-list">
+            <h3>Chats</h3>
+            <div id="chat-list-items"></div>
+            <button id="new-chat-btn" onclick="startNewChat()">Start New Chat</button>
+            <button id="shutdown-btn" onclick="systemShutdown()">Shutdown System</button>
+        </div>
+        <div id="chat-window">
+            <div id="chat"></div>
+            <div id="input-area">
+                <label for="model">Select Model:</label>
+                <select id="model"></select>
+                <textarea id="prompt" placeholder="Type your question here..."></textarea>
+            </div>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='main.js') }}"></script>
+</body>
+</html>
