@@ -136,25 +136,38 @@ async function loadChatHistory() {
     }
 }
 
+function escapeHtml(text) {
+    return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+}
+
 async function sendPrompt() {
     const model = document.getElementById("model").value;
     const prompt = document.getElementById("prompt").value;
     if (!prompt.trim() || !model) return;
+
     const chat = document.getElementById("chat");
-    chat.innerHTML += `<div class="user"><strong>You:</strong> ${marked.parse(prompt)}</div>`;
+
+    chat.innerHTML += `<div class="user"><strong>You:</strong><pre><code>${escapeHtml(prompt)}</code></pre></div>`;
     document.getElementById("prompt").value = "";
+
     try {
         const res = await fetch("/ask", {
             method: "POST",
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify({model, prompt})
         });
+
         const data = await res.text();
-        chat.innerHTML += `<div class="ai"><strong>AI:</strong> ${marked.parse(data)}</div>`;
+
+        chat.innerHTML += `<div class="ai"><strong>AI:</strong><pre><code>${escapeHtml(data)}</code></pre></div>`;
         chat.scrollTop = chat.scrollHeight;
+
         loadChatList();
     } catch (error) {
-        chat.innerHTML += `<div class="ai"><strong>Error:</strong> ${error.message}</div>`;
+        chat.innerHTML += `<div class="ai"><strong>Error:</strong><pre><code>${escapeHtml(error.message)}</code></pre></div>`;
         chat.scrollTop = chat.scrollHeight;
     }
 }
