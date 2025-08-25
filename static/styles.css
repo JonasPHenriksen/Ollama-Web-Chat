@@ -54,6 +54,7 @@ h1 {
     justify-content: space-between;
     align-items: center;
     flex-shrink: 0;
+    transition: background 0.2s, transform 0.2s;
 }
 
 .chat-item:hover {
@@ -61,7 +62,10 @@ h1 {
 }
 
 .active-chat {
-    border: 1px solid #00e5ff;
+    background: rgba(0, 229, 255, 0.35) !important;
+    border: 2px solid #00e5ff;
+    color: #00e5ff;
+    box-shadow: 0 0 12px rgba(0, 229, 255, 0.6);
 }
 
 .delete-btn {

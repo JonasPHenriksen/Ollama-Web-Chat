@@ -38,16 +38,19 @@ async function loadChatList() {
         chats.forEach(chat => {
             const chatItem = document.createElement("div");
             chatItem.className = "chat-item";
-            chatItem.innerHTML = `<span>${chat.title}</span><button class="delete-btn" onclick="deleteChat(event,'${chat.id}')">❌</button>`;
+            chatItem.dataset.id = chat.id;
+            chatItem.innerHTML = `<span>${chat.title}</span>
+                                <button class="delete-btn" onclick="deleteChat(event,'${chat.id}')">❌</button>`;
             chatItem.onclick = () => switchChat(chat.id);
             chatListItems.appendChild(chatItem);
         });
 
-        if (!currentChatId || !chats.some(chat => chat.id === currentChatId)) {
-            await switchChat(chats[0].id);
+        const savedChatId = localStorage.getItem("lastChatId");
+
+        if (savedChatId && chats.some(chat => chat.id === savedChatId)) {
+            await switchChat(savedChatId); 
         } else {
-            await loadChatHistory();
-            document.querySelector(`[onclick="switchChat('${currentChatId}')"]`).classList.add('active-chat');
+            await switchChat(chats[0].id);  
         }
     } catch (error) {
         console.error("Error loading chat list:", error);
@@ -60,10 +63,11 @@ async function switchChat(chatId) {
         if (!res.ok) throw new Error("Failed to switch chat");
 
         document.querySelectorAll('.chat-item').forEach(item => item.classList.remove('active-chat'));
-        const activeItem = document.querySelector(`[onclick="switchChat('${chatId}')"]`);
-        if(activeItem) activeItem.classList.add('active-chat');
+        const activeItem = document.querySelector(`.chat-item[data-id="${chatId}"]`);
+        if (activeItem) activeItem.classList.add('active-chat');
 
         currentChatId = chatId;
+        localStorage.setItem("lastChatId", chatId);
         loadChatHistory();
     } catch (error) {
         alert("Error switching chat: " + error.message);
@@ -167,14 +171,24 @@ async function sendPrompt() {
         aiDiv.innerHTML = "<strong>AI:</strong> ";
         chat.appendChild(aiDiv);
 
+        function isUserAtBottom(element, threshold = 0.1) {
+            const distanceFromBottom = element.scrollHeight - element.scrollTop - element.clientHeight;
+            return (distanceFromBottom / element.scrollHeight) < threshold;
+        }
+
         let result = "";
         while (true) {
             const { value, done } = await reader.read();
             if (done) break;
             result += decoder.decode(value, { stream: true });
             aiDiv.innerHTML = "<strong>AI:</strong> " + marked.parse(result);
-            chat.scrollTop = chat.scrollHeight;
+
+            if (isUserAtBottom(chat)) {
+                chat.scrollTop = chat.scrollHeight;
+            }
         }
+
+        await loadChatList();
 
     } catch (error) {
         chat.innerHTML += `<div class="ai"><strong>Error:</strong><pre><code>${escapeHtml(error.message)}</code></pre></div>`;
@@ -185,7 +199,7 @@ async function sendPrompt() {
 async function systemShutdown() {
     if (!confirm("Are you sure you want to shut down the entire system?")) return;
     try {
-        const res = await fetch("/system_shutdown", { method: "POST" });
+        const res = await fetch("/system/system_shutdown", { method: "POST" });
         if (!res.ok) throw new Error("Failed to shutdown system");
         alert("System is shutting down...");
     } catch (error) {
