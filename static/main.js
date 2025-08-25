@@ -119,30 +119,11 @@ async function loadChatHistory() {
 
         const chat = document.getElementById("chat");
         chat.innerHTML = "";
+
         history.forEach(msg => {
-            const role = msg.role === "user" ? "You" : "AI";
-            const className = msg.role === "user" ? "user" : "ai";
-
-        function parseContent(content) {
-            return content.replace(/\[IMAGE\](.+)/g, (match, p1) => {
-                let imgPath = p1.trim();
-
-                const uploadsIndex = imgPath.indexOf("/uploads/");
-                if (uploadsIndex !== -1) {
-                    imgPath = imgPath.substring(uploadsIndex + 1);
-                }
-
-                return `<br><img src="${imgPath}" style="max-width: 30%; border-radius: 6px;">`;
-            });
-        }
-
-        if (msg.role === "user") {
-            chat.innerHTML += `<div class="${className}"><strong>${role}:</strong> ${parseContent(escapeHtml(msg.content))}</div>`;
-        } else {
-            chat.innerHTML += `<div class="${className}"><strong>${role}:</strong> ${marked.parse(msg.content)}</div>`;
-        }
-        
+            chat.innerHTML += renderMessage(msg.role, msg.content);
         });
+
         chat.scrollTop = chat.scrollHeight;
 
         const modelSelect = document.getElementById("model");
@@ -169,15 +150,14 @@ async function sendMessage() {
     const chat = document.getElementById("chat");
 
     if (prompt.trim()) {
-        chat.innerHTML += `<div class="user"><strong>You:</strong><pre><code>${escapeHtml(prompt)}</code></pre></div>`;
+        chat.innerHTML += renderMessage("user", prompt);
         document.getElementById("prompt").value = "";
     }
 
     if (imageFile) {
         const reader = new FileReader();
         reader.onload = function(e) {
-            chat.innerHTML += `<div class="user"><strong>You:</strong><br>
-                               <img src="${e.target.result}" style="max-width: 80%; border-radius: 6px;"></div>`;
+            chat.innerHTML += `<img src="${e.target.result}" style="max-width: 30%; border-radius: 6px;"></div>`;
         };
         reader.readAsDataURL(imageFile);
         document.getElementById("image-upload").value = "";
@@ -187,6 +167,11 @@ async function sendMessage() {
     formData.append("model", model);
     if (prompt.trim()) formData.append("prompt", prompt);
     if (imageFile) formData.append("image", imageFile);
+
+    function isUserAtBottom(element, threshold = 0.1) {
+    const distanceFromBottom = element.scrollHeight - element.scrollTop - element.clientHeight;
+    return (distanceFromBottom / element.scrollHeight) < threshold;
+    }
 
     try {
         const res = await fetch("/ask_stream", {
@@ -201,14 +186,23 @@ async function sendMessage() {
         aiDiv.className = "ai";
         aiDiv.innerHTML = "<strong>AI:</strong> ";
         chat.appendChild(aiDiv);
-
         let result = "";
         while (true) {
             const { value, done } = await reader.read();
             if (done) break;
             result += decoder.decode(value, { stream: true });
-            aiDiv.innerHTML = "<strong>AI:</strong> " + marked.parse(result);
-            chat.scrollTop = chat.scrollHeight;
+
+            const shouldScroll = isUserAtBottom(chat);
+            aiDiv.innerHTML = "<strong>AI:</strong> " + marked.parse(result.replace(/\[IMAGE\](.+)/g, (match, p1) => {
+                let imgPath = p1.trim();
+                const uploadsIndex = imgPath.indexOf("/uploads/");
+                if (uploadsIndex !== -1) imgPath = imgPath.substring(uploadsIndex + 1);
+                return `<br><img src="${imgPath}" style="max-width: 30%; border-radius: 6px;">`;
+            }));
+
+            if (shouldScroll) {
+                chat.scrollTop = chat.scrollHeight;
+            }
         }
 
         await loadChatList();
@@ -269,5 +263,35 @@ async function askStream(prompt, model="gemma:4b") {
         document.getElementById("chat").textContent = result; 
     }
 }
+
+function renderMessage(role, content) {
+    function parseContent(text) {
+        // Handle [IMAGE] tags
+        text = text.replace(/\[IMAGE\](.+)/g, (match, p1) => {
+            let imgPath = p1.trim();
+            const uploadsIndex = imgPath.indexOf("/uploads/");
+            if (uploadsIndex !== -1) imgPath = imgPath.substring(uploadsIndex + 1);
+            return `<br><img src="${imgPath}" style="max-width: 30%; border-radius: 6px;">`;
+        });
+        return text;
+    }
+
+    let htmlContent;
+    if (role === "user") {
+        htmlContent = `<div class="user"><strong>You:</strong> ${parseContent(escapeHtml(content))}</div>`;
+    } else {
+        htmlContent = `<div class="ai"><strong>AI:</strong> ${marked.parse(parseContent(content))}</div>`;
+    }
+
+    return htmlContent;
+}
+
+function escapeHtml(text) {
+    return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+}
+
 
 window.onload = loadModels;

@@ -52,6 +52,9 @@ def ask_stream():
     conversation_text = "\n".join([f"{msg['role'].capitalize()}: {msg['content']}" 
                                    for msg in all_histories[user_id]["history"]])
 
+    with open("debug.txt", "w", encoding="utf-8") as f:
+        f.write("Input:\n" + conversation_text + "\n")
+
     process = subprocess.Popen(
         ["ollama", "run", model, "--think=false"],
         stdin=subprocess.PIPE,

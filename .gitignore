@@ -2,3 +2,4 @@ ollama-web/
 chat_history.json
 __pycache__/
 uploads/
+debug.txt
