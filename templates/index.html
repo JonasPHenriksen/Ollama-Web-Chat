@@ -17,11 +17,14 @@
         </div>
         <div id="chat-window">
             <div id="chat"></div>
-            <div id="input-area">
-                <label for="model">Select Model:</label>
-                <select id="model"></select>
-                <textarea id="prompt" placeholder="Type your question here..." wrap="off"></textarea>
-            </div>
+                <div id="input-area">
+                    <label for="model">Select Model:</label>
+                    <select id="model"></select>
+
+                    <textarea id="prompt" placeholder="Type your question here..." wrap="off"></textarea>
+
+                    <input type="file" id="image-upload" accept="image/*">
+                </div>
         </div>
     </div>
     <script src="{{ url_for('static', filename='main.js') }}"></script>

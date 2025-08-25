@@ -123,11 +123,19 @@ async function loadChatHistory() {
             const role = msg.role === "user" ? "You" : "AI";
             const className = msg.role === "user" ? "user" : "ai";
 
-            if (msg.role === "user") {
-                chat.innerHTML += `<div class="${className}"><strong>${role}:</strong><pre><code>${escapeHtml(msg.content)}</code></pre></div>`;
-            } else {
-                chat.innerHTML += `<div class="${className}"><strong>${role}:</strong> ${marked.parse(msg.content)}</div>`;
-            }
+        function parseContent(content) {
+            return content.replace(/\[IMAGE\](.+)/g, (match, p1) => {
+                const imgPath = p1.trim();
+                return `<img src="${imgPath}" style="max-width: 80%; border-radius: 6px;">`;
+            });
+        }
+
+        if (msg.role === "user") {
+            chat.innerHTML += `<div class="${className}"><strong>${role}:</strong> ${parseContent(escapeHtml(msg.content))}</div>`;
+        } else {
+            chat.innerHTML += `<div class="${className}"><strong>${role}:</strong> ${marked.parse(msg.content)}</div>`;
+        }
+        
         });
         chat.scrollTop = chat.scrollHeight;
 
@@ -146,21 +154,38 @@ function escapeHtml(text) {
         .replace(/>/g, "&gt;");
 }
 
-async function sendPrompt() {
+async function sendMessage() {
     const model = document.getElementById("model").value;
     const prompt = document.getElementById("prompt").value;
-    if (!prompt.trim() || !model) return;
+    const imageFile = document.getElementById("image-upload").files[0];
+    if (!prompt.trim() && !imageFile) return;
 
     const chat = document.getElementById("chat");
 
-    chat.innerHTML += `<div class="user"><strong>You:</strong><pre><code>${escapeHtml(prompt)}</code></pre></div>`;
-    document.getElementById("prompt").value = "";
+    if (prompt.trim()) {
+        chat.innerHTML += `<div class="user"><strong>You:</strong><pre><code>${escapeHtml(prompt)}</code></pre></div>`;
+        document.getElementById("prompt").value = "";
+    }
+
+    if (imageFile) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            chat.innerHTML += `<div class="user"><strong>You:</strong><br>
+                               <img src="${e.target.result}" style="max-width: 80%; border-radius: 6px;"></div>`;
+        };
+        reader.readAsDataURL(imageFile);
+        document.getElementById("image-upload").value = "";
+    }
+
+    const formData = new FormData();
+    formData.append("model", model);
+    if (prompt.trim()) formData.append("prompt", prompt);
+    if (imageFile) formData.append("image", imageFile);
 
     try {
         const res = await fetch("/ask_stream", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ prompt, model })
+            body: formData
         });
 
         const reader = res.body.getReader();
@@ -171,21 +196,13 @@ async function sendPrompt() {
         aiDiv.innerHTML = "<strong>AI:</strong> ";
         chat.appendChild(aiDiv);
 
-        function isUserAtBottom(element, threshold = 0.1) {
-            const distanceFromBottom = element.scrollHeight - element.scrollTop - element.clientHeight;
-            return (distanceFromBottom / element.scrollHeight) < threshold;
-        }
-
         let result = "";
         while (true) {
             const { value, done } = await reader.read();
             if (done) break;
             result += decoder.decode(value, { stream: true });
             aiDiv.innerHTML = "<strong>AI:</strong> " + marked.parse(result);
-
-            if (isUserAtBottom(chat)) {
-                chat.scrollTop = chat.scrollHeight;
-            }
+            chat.scrollTop = chat.scrollHeight;
         }
 
         await loadChatList();
@@ -210,7 +227,7 @@ async function systemShutdown() {
 document.getElementById("prompt").addEventListener("keydown", function(event) {
     if (event.key === "Enter" && !event.shiftKey) {
         event.preventDefault();
-        sendPrompt();
+        sendMessage();
     }
 });
 
@@ -229,7 +246,7 @@ setInterval(updateVRAM, 5000);
 updateVRAM();  
 
 async function askStream(prompt, model="gemma:4b") {
-    const res = await fetch("/chat/ask_stream", {
+    const res = await fetch("/ask_stream", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({prompt, model})

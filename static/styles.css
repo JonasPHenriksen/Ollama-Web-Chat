@@ -151,3 +151,8 @@ select:disabled {
     word-wrap: break-word;
 }
 
+.user img, .ai img {
+    max-width: 80%;
+    border-radius: 6px;
+    margin: 5px 0;
+}
