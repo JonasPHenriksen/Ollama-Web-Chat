@@ -125,8 +125,14 @@ async function loadChatHistory() {
 
         function parseContent(content) {
             return content.replace(/\[IMAGE\](.+)/g, (match, p1) => {
-                const imgPath = p1.trim();
-                return `<img src="${imgPath}" style="max-width: 80%; border-radius: 6px;">`;
+                let imgPath = p1.trim();
+
+                const uploadsIndex = imgPath.indexOf("/uploads/");
+                if (uploadsIndex !== -1) {
+                    imgPath = imgPath.substring(uploadsIndex + 1);
+                }
+
+                return `<br><img src="${imgPath}" style="max-width: 30%; border-radius: 6px;">`;
             });
         }
 

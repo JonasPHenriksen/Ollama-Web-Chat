@@ -31,6 +31,7 @@ def ask_stream():
     image_file = request.files.get("image")
 
     user_content = prompt if prompt else ""
+    all_histories = load_all_chat_histories()
 
     image_path = None
     if image_file:
@@ -38,10 +39,6 @@ def ask_stream():
         os.makedirs(upload_dir, exist_ok=True)
         image_path = os.path.join(upload_dir, image_file.filename)
         image_file.save(image_path)
-
-        user_content += f"\n[IMAGE]/uploads/{image_file.filename}"
-
-    if image_path:
         user_content += f"\n[IMAGE]{image_path}"
 
     all_histories = load_all_chat_histories()
