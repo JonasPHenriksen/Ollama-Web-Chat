@@ -4,12 +4,13 @@
     <title>Ollama Web Chat</title>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
     <h1>Ollama Web Chat</h1>
     <div id="chat-container">
         <div id="chat-list">
-            <h3>Chats</h3>
+            <h1>Chats</h1>
             <div id="chat-list-items"></div>
             <div id="vram-usage">VRAM Usage: Loading...</div>
             <button id="new-chat-btn" onclick="startNewChat()">Start New Chat</button>
@@ -17,14 +18,22 @@
         </div>
         <div id="chat-window">
             <div id="chat"></div>
-                <div id="input-area">
-                    <label for="model">Select Model:</label>
-                    <select id="model"></select>
-
+            <div id="input-area">
+                <select id="model"></select>
+                <div id="text-input-wrapper">
                     <textarea id="prompt" placeholder="Type your question here..." wrap="off"></textarea>
-
-                    <input type="file" id="image-upload" accept="image/*">
+                    <div id="image-upload-wrapper">
+                        <label for="image-upload" id="image-upload-button">
+                            <span id="image-upload-text">Image</span>
+                            <img id="image-preview" src="#" alt="Image Preview" style="display: none;">
+                            <input type="file" id="image-upload" accept="image/*">
+                        </label>
+                        <div id="file-indicator">
+                            <button id="clear-image-btn">x</button>
+                        </div>
+                    </div>
                 </div>
+            </div>
         </div>
     </div>
     <script src="{{ url_for('static', filename='main.js') }}"></script>
