@@ -273,13 +273,12 @@ select:disabled {
     height: 60px;
     font-size: 24px;
     position: fixed;
-    bottom: 20px;
-    left: 20px;
+    top: 20px; 
+    right: 20px; 
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     cursor: pointer;
     z-index: 1000;
     transition: transform 0.2s, background-color 0.2s;
-    animation: pulse 2s infinite;
 }
 
 @keyframes pulse {
