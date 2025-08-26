@@ -42,7 +42,7 @@ async function loadChatList() {
             chatItem.innerHTML = `<span>${chat.title}</span>
                                 <button class="delete-btn" onclick="deleteChat(event,'${chat.id}')">❌</button>`;
             chatItem.onclick = () => switchChat(chat.id);
-            chatListItems.appendChild(chatItem);
+            chatListItems.prepend(chatItem);
         });
 
         const savedChatId = localStorage.getItem("lastChatId");
