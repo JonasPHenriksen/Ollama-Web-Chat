@@ -205,8 +205,6 @@ async function sendMessage() {
             }
         }
 
-        await loadChatList();
-
     } catch (error) {
         chat.innerHTML += `<div class="ai"><strong>Error:</strong><pre><code>${escapeHtml(error.message)}</code></pre></div>`;
         chat.scrollTop = chat.scrollHeight;
@@ -242,7 +240,7 @@ async function updateVRAM() {
     }
 }
 
-setInterval(updateVRAM, 5000);
+setInterval(updateVRAM, 30000);
 updateVRAM();  
 
 async function askStream(prompt, model="gemma:4b") {
