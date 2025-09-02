@@ -313,8 +313,8 @@ async function updateVRAM() {
     }
 }
 
-// setInterval(updateVRAM, 30000);
-// updateVRAM();
+setInterval(updateVRAM, 30000);
+updateVRAM();
 
 async function askStream(prompt, model = "gemma:4b") {
   const res = await fetch("/ask_stream", {
@@ -362,8 +362,7 @@ function renderMessage(role, content, modelName = document.getElementById("model
   return message
 }
 
-// window.onload = loadModels;
-loadChatList();
+window.onload = loadModels;
 
 // New function to toggle chat list visibility on mobile
 document.addEventListener('DOMContentLoaded', () => {
