@@ -151,6 +151,7 @@ code {
 }
 
 pre:has(> code) {
+	position: relative;
 	background: rgba(30, 30, 40, 0.9);
 	border: 1px solid rgba(0, 229, 255, 0.4);
 	border-radius: 8px;
@@ -163,6 +164,27 @@ pre:has(> code) {
 
 pre > code {
 	font-style: normal;
+}
+
+.copy-btn {
+	display: none;
+	position: absolute;
+	top: 0;
+	right: 0;
+	margin: .5rem;
+	gap: .2rem;
+	justify-content: center;
+	align-items: center;
+	background-color: transparent;
+	border: 0;
+	color: gray;
+}
+.copy-btn svg {
+	width: 1rem;
+	height: 1rem;
+}
+pre:has(> code):hover .copy-btn {
+	display: flex;
 }
 
 
