@@ -3,40 +3,89 @@
 <head>
     <title>Ollama Web Chat</title>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script defer src="{{ url_for('static', filename='highlight.js') }}"></script>
+    {% for lang in [
+      'c', 'cpp', 'csharp', 'css', 'go',
+      'ini', 'java', 'javascript', 'json',
+      'lua', 'markdown', 'php', 'python',
+      'r', 'ruby', 'shell', 'sql', 'typescript',
+      'xml', 'yaml'
+    ] %}
+      <script defer src="{{ url_for('static', filename='languages/' + lang + '.min.js') }}"></script>
+    {% endfor %}
     <script defer src="{{ url_for('static', filename='html.js') }}"></script>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script defer src="{{ url_for('static', filename='main.js') }}"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/styles.css') }}">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
-    <h1>Ollama Web Chat</h1>
     <div id="chat-container">
         <div id="chat-list">
-            <h1>Chats</h1>
+          <div class="chat-list-topbar">
+            <span>Ollama Chat</span>
+            <button class="close-chat-list-btn button">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            </button>
+          </div>
+          <div class="chat-list-content">
             <div id="chat-list-items"></div>
-            <div id="vram-usage">VRAM Usage: Loading...</div>
-            <button id="new-chat-btn" onclick="startNewChat()">Start New Chat</button>
-            <button id="shutdown-btn" onclick="systemShutdown()">Shutdown System</button>
+            <div class="chat-list-controls">
+              <div id="vram-usage">VRAM Usage: Loading...</div>
+              <div class="button-group">
+                <button id="new-chat-btn" onclick="startNewChat()">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus-icon lucide-plus"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+                  New Chat
+                </button>
+                <button id="shutdown-btn" onclick="systemShutdown()">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-power-icon lucide-power"><path d="M12 2v10"/><path d="M18.4 6.6a9 9 0 1 1-12.77.04"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
         <div id="chat-window">
-            <div id="chat"></div>
-            <div id="input-area">
-                <select id="model"></select>
-                <div id="text-input-wrapper">
-                    <textarea id="prompt" placeholder="Type your question here..." wrap="off"></textarea>
-                    <div id="image-upload-wrapper">
-                        <label for="image-upload" id="image-upload-button">
-                            <span id="image-upload-text">Image</span>
-                            <img id="image-preview" src="#" alt="Image Preview" style="display: none;">
-                            <input type="file" id="image-upload" accept="image/*">
-                        </label>
-                        <div id="file-indicator">
-                            <button id="clear-image-btn">x</button>
-                        </div>
-                    </div>
-                </div>
+          <div class="chat-topbar">
+            <div class="chat-name">Chat Name Here</div>
+          </div>
+          <div class="empty-chat-indicator">
+            <div class="user-display">
+              <div class="user-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-icon lucide-user"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              </div>
+              <div class="separator h-1 w-8 bg-primary/20 rounded-full"></div>
+              <div class="user-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bot-icon lucide-bot"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>
+              </div>
             </div>
+            <span class="welcome-text">
+              Welcome to Ollama Chat
+            </span>
+            <p class="description">
+              Start a conversation with your local AI model. Upload images, ask questions, and explore the possibilities.
+            </p>
+          </div>
+          <div id="chat"></div>
+          <div id="input-area">
+            <div class="attachments">
+              <div class="attachment">
+                <img id="image-preview" src="#" alt="Image Preview" style="display: none;">
+                <div id="file-indicator">
+                  <button id="clear-image-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <select id="model"></select>
+            <div id="text-input-wrapper">
+              <textarea id="prompt" placeholder="Type your message..." wrap="off"></textarea>
+              <label for="image-upload" class="image-upload-button button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-paperclip-icon lucide-paperclip"><path d="m16 6-8.414 8.586a2 2 0 0 0 2.829 2.829l8.414-8.586a4 4 0 1 0-5.657-5.657l-8.379 8.551a6 6 0 1 0 8.485 8.485l8.379-8.551"/></svg>
+                <input style="display: none;" type="file" id="image-upload" accept="image/*">
+              </label>
+            </div>
+          </div>
         </div>
     </div>
-    <script src="{{ url_for('static', filename='main.js') }}"></script>
 </body>
 </html>

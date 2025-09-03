@@ -1,26 +1,34 @@
-let currentChatId = null;
+const icons = {
+  trash: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash2-icon lucide-trash-2"><path d="M10 11v6"/><path d="M14 11v6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>`,
+  copy: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-copy-icon lucide-copy"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>`,
+  check: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check-icon lucide-check"><path d="M20 6 9 17l-5-5"/></svg>`,
+  paperclip: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-paperclip-icon lucide-paperclip"><path d="m16 6-8.414 8.586a2 2 0 0 0 2.829 2.829l8.414-8.586a4 4 0 1 0-5.657-5.657l-8.379 8.551a6 6 0 1 0 8.485 8.485l8.379-8.551"/></svg>`,
+  message: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-square-icon lucide-message-square"><path d="M22 17a2 2 0 0 1-2 2H6.828a2 2 0 0 0-1.414.586l-2.202 2.202A.71.71 0 0 1 2 21.286V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2z"/></svg>`,
+  octagonAlert: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-octagon-alert-icon lucide-octagon-alert"><path d="M12 16h.01"/><path d="M12 8v4"/><path d="M15.312 2a2 2 0 0 1 1.414.586l4.688 4.688A2 2 0 0 1 22 8.688v6.624a2 2 0 0 1-.586 1.414l-4.688 4.688a2 2 0 0 1-1.414.586H8.688a2 2 0 0 1-1.414-.586l-4.688-4.688A2 2 0 0 1 2 15.312V8.688a2 2 0 0 1 .586-1.414l4.688-4.688A2 2 0 0 1 8.688 2z"/></svg>`
+}
 
 async function loadModels() {
-    try {
-        const res = await fetch("/models");
-        const models = await res.json();
-        const select = document.getElementById("model");
-        select.innerHTML = "";
-        if (models.length === 0) {
-            select.innerHTML = '<option value="" disabled>No models available</option>';
-        } else {
-            models.forEach(m => {
-                const option = document.createElement("option");
-                option.value = m;
-                option.text = m;
-                select.add(option);
-            });
-        }
-        loadChatList();
-    } catch (error) {
-        console.error("Error loading models:", error);
-        document.getElementById("model").innerHTML = '<option value="" disabled>Error loading models</option>';
+  try {
+    const res = await fetch("/models");
+    const models = await res.json();
+    const select = document.getElementById("model");
+    select.innerHTML = "";
+    if (models.length === 0) {
+      select.innerHTML = '<option value="" disabled>No models available</option>';
+    } else {
+      models.forEach(model => {
+        const option = html("option", {
+          value: model,
+          text: model
+        })
+        select.add(option);
+      });
     }
+    loadChatList();
+  } catch (error) {
+    console.error("Error loading models:", error);
+    document.getElementById("model").innerHTML = '<option value="" disabled>Error loading models</option>';
+  }
 }
 
 async function loadChatList() {
@@ -38,11 +46,12 @@ async function loadChatList() {
     chats.forEach(chat => {
       const chatItem = html(".chat-item", {
         children: [
-        html("span", { text: chat.title }),
-        html("button.delete-btn", {
-          onclick: (event) => deleteChat(event, chat.id),
-          text: "❌"
-        })
+          html(".chat-icon", { innerHTML: icons.message }),
+          html("span", { text: chat.title }),
+          html("button.delete-btn", {
+            onclick: (event) => deleteChat(event, chat.id),
+            innerHTML: icons.trash
+          })
         ],
         onclick: () => switchChat(chat.id)
       })
@@ -71,7 +80,6 @@ async function switchChat(chatId) {
     const activeItem = document.querySelector(`.chat-item[data-id="${chatId}"]`);
     if (activeItem) activeItem.classList.add('active-chat');
 
-    currentChatId = chatId;
     localStorage.setItem("lastChatId", chatId);
     loadChatHistory();
 
@@ -113,12 +121,33 @@ async function deleteChat(event, chatId) {
       document.getElementById("chat").innerHTML = "";
       document.getElementById("model").style.display = 'block';
       document.getElementById("model").disabled = false;
-      currentChatId = null;
     }
 
   } catch (error) {
     alert("Error deleting chat: " + error.message);
   }
+}
+
+function addCopyButton(element, textSelector) {
+  const copyBtn = html("button.copy-btn", {
+    innerHTML: icons.copy + "Copy",
+    title: "Copy to clipboard",
+    onclick: (e) => {
+      e.stopPropagation();
+      const text = textSelector(element)
+      if (!text) return
+
+      navigator.clipboard.writeText(text).then(() => {
+        copyBtn.innerHTML = icons.check + "Copied!";
+        setTimeout(() => {
+          copyBtn.innerHTML = icons.copy + "Copy";
+        }, 2000);
+      }).catch(err => {
+        alert("Failed to copy text: " + err);
+      });
+    }
+  })
+  element.appendChild(copyBtn);
 }
 
 async function loadChatHistory() {
@@ -127,39 +156,16 @@ async function loadChatHistory() {
     const data = await res.json();
     const history = data.history;
     const savedModel = data.model;
+    const chatTitle = data.title;
 
     const chat = document.getElementById("chat");
     chat.innerHTML = "";
 
+    document.querySelector(".chat-name").textContent = chatTitle
+
     // Batch render messages
     const messages = history.map(msg => renderMessage(msg.role, msg.content, savedModel));
     chat.append(...messages)
-
-    const copyIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-copy-icon lucide-copy"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>`
-    const checkIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check-icon lucide-check"><path d="M20 6 9 17l-5-5"/></svg>`
-
-    chat.querySelectorAll("pre:has(> code)").forEach(pre => {
-      const copyBtn = html("button.copy-btn", {
-        innerHTML: copyIcon + "Copy",
-        title: "Copy to clipboard",
-        onclick: (e) => {
-          e.stopPropagation();
-          const code = pre.querySelector("code");
-          if (!code) return
-
-          navigator.clipboard.writeText(code.innerText).then(() => {
-            copyBtn.innerHTML = checkIcon + "Copied!";
-            setTimeout(() => {
-              copyBtn.innerHTML = copyIcon + "Copy";
-            }, 2000);
-          }).catch(err => {
-            alert("Failed to copy text: " + err);
-          });
-        }
-      })
-      pre.appendChild(copyBtn);
-    });
-
     chat.scrollTop = chat.scrollHeight;
 
     const modelSelect = document.getElementById("model");
@@ -193,8 +199,6 @@ async function sendMessage() {
   const modelSelect = document.getElementById("model");
   const fileIndicator = document.getElementById("file-indicator");
   const imagePreview = document.getElementById("image-preview");
-  const imageUploadText = document.getElementById("image-upload-text");
-
 
   if (prompt.trim()) {
     chat.appendChild(renderMessage("user", prompt));
@@ -204,14 +208,21 @@ async function sendMessage() {
   if (imageFile) {
     const reader = new FileReader();
     reader.onload = function(e) {
-      chat.innerHTML += `<img src="${e.target.result}" style="max-width: 30%; border-radius: 6px;"></div>`;
+      const image = html("img", {
+        src: e.target.result,
+        style: {
+          marginLeft: "auto",
+          maxWidth: "30%",
+          borderRadius: "6px"
+        }
+      })
+      chat.appendChild(image)
     };
     reader.readAsDataURL(imageFile);
     document.getElementById("image-upload").value = ""; // Clear file input
     fileIndicator.style.display = 'none'; // Hide indicator after sending
     imagePreview.style.display = 'none'; // Hide preview
     imagePreview.src = '#'; // Clear preview source
-    imageUploadText.style.display = 'block'; // Show "Image" text
   }
 
   modelSelect.style.display = 'none';
@@ -233,12 +244,14 @@ async function sendMessage() {
       body: formData
     });
 
+    if (!res.ok) {
+      throw new Error(`HTTP error! status: ${res.status} ${res.statusText}${await res.text()}`)
+    }
+
     const reader = res.body.getReader();
     const decoder = new TextDecoder();
 
-    const aiDiv = document.createElement("div");
-    aiDiv.className = "ai";
-    aiDiv.innerHTML = `<strong>AI (${model}):</strong> `;
+    const aiDiv = html(".ai")
     chat.appendChild(aiDiv);
     let result = "";
     while (true) {
@@ -252,12 +265,8 @@ async function sendMessage() {
       });
 
       const shouldScroll = isUserAtBottom(chat);
-      aiDiv.innerHTML = `<strong>AI (${model}):</strong> ${marked.parse(result.replace(/\[IMAGE\](.+)/g, (match, p1) => {
-        let imgPath = p1.trim();
-        const uploadsIndex = imgPath.indexOf("/uploads/");
-        if (uploadsIndex !== -1) imgPath = imgPath.substring(uploadsIndex + 1);
-        return `<br><img src="${imgPath}" style="max-width: 30%; border-radius: 6px;">`;
-      }))}`;
+      aiDiv.innerHTML = ""
+      aiDiv.appendChild(renderMessage("ai", result, model))
 
       if (shouldScroll) {
         chat.scrollTop = chat.scrollHeight;
@@ -265,7 +274,12 @@ async function sendMessage() {
     }
 
   } catch (error) {
-    chat.innerHTML += `<div class="ai"><strong>Error:</strong><pre><code>${escapeHtml(error.message)}</code></pre></div>`;
+    const message = renderMessage("ai", error.message, model)
+    message.classList.add("error-message")
+    message.appendChild(html(".error-indicator", {
+      innerHTML: icons.octagonAlert
+    }))
+    chat.appendChild(message)
     chat.scrollTop = chat.scrollHeight;
   }
 }
@@ -294,22 +308,19 @@ document.getElementById("prompt").addEventListener("keydown", function(event) {
 document.getElementById("image-upload").addEventListener("change", function() {
   const fileIndicator = document.getElementById("file-indicator");
   const imagePreview = document.getElementById("image-preview");
-  const imageUploadText = document.getElementById("image-upload-text");
 
   if (this.files && this.files[0]) {
     const reader = new FileReader();
     reader.onload = function(e) {
       imagePreview.src = e.target.result;
       imagePreview.style.display = 'block';
-      imageUploadText.style.display = 'none'; // Hide "Image" text
-      fileIndicator.style.display = 'flex'; // Show clear button
+      fileIndicator.style.display = 'flex';
     };
     reader.readAsDataURL(this.files[0]);
   } else {
     imagePreview.src = '#';
     imagePreview.style.display = 'none';
-    imageUploadText.style.display = 'block'; // Show "Image" text
-    fileIndicator.style.display = 'none'; // Hide clear button
+    fileIndicator.style.display = 'none';
   }
 });
 
@@ -318,12 +329,10 @@ document.getElementById("clear-image-btn").addEventListener("click", function(ev
   event.stopPropagation(); // Prevent label click from re-opening file dialog
   const imageInput = document.getElementById("image-upload");
   const imagePreview = document.getElementById("image-preview");
-  const imageUploadText = document.getElementById("image-upload-text");
   
   imageInput.value = ""; // Reset the file input
   imagePreview.src = '#'; // Clear preview source
   imagePreview.style.display = 'none'; // Hide preview
-  imageUploadText.style.display = 'block'; // Show "Image" text
   document.getElementById("file-indicator").style.display = 'none'; // Hide clear button
 });
 
@@ -368,6 +377,93 @@ async function askStream(prompt, model = "gemma:4b") {
   }
 }
 
+const settings = {
+	indentLines: true,
+	lineNumbers: true,
+}
+
+function detectIndent(text) {
+  const lines = text.split("\n")
+    .map(line => line.match(/^( +)/)) // only spaces
+    .filter(Boolean) // only indented lines
+    .map(m => m[0].length);
+
+  if (lines.length < 2) return 2; // fallback
+
+  const diffs = {};
+  for (let i = 1; i < lines.length; i++) {
+    const diff = Math.abs(lines[i] - lines[i - 1]);
+    if (diff > 0) {
+      diffs[diff] = (diffs[diff] || 0) + 1;
+    }
+  }
+
+  // Pick the most frequent diff
+  const indentSize = parseInt(Object.keys(diffs).sort((a, b) => diffs[b] - diffs[a])[0]);
+  return indentSize || 2;
+}
+
+function highlightCode(root = document) {
+  const codeBlocks = root.querySelectorAll("pre > code");
+
+  codeBlocks.forEach(block => {
+    let text = block.textContent;
+    block.innerHTML = ""
+    block.className = "show-code"
+
+    const indentSize = detectIndent(text)
+
+    // Create line numbers
+    const lineNumbers = html("numbers")
+    if (settings.lineNumbers) {
+      text = text.replace(/\s+$/, '') // Remove whitespace from end of string
+      const lines = text.split("\n")
+      for (let i = 0; i < lines.length; i++) {
+        const number = html("number")
+        lineNumbers.append(number)
+      }
+    }
+
+    let wasIndented = false
+    let prevIndents = 0
+    const fragment = document.createDocumentFragment()
+    const highlightedText = hljs.highlightAuto(text).value
+    highlightedText.split("\n").forEach(line => {
+      const regex = new RegExp(" {" + indentSize + "}", "g");
+      line = line.replace(regex, "\t");
+
+      const isEmpty = line.trim() === ""
+      const matches = line.match(/^\s+/)
+
+      if (settings.indentLines) {
+        const indents = matches ? matches[0].split("\t").length - 1 : 0
+
+        // Check if whitespace in front of string
+        const hasWhiteSpace = /^[\s\uFEFF\xA0]+/.test(line) 
+
+        // Replace all tabs in front of the line with indentation line wrappers
+        line = line.replace(/^(\t+)/, (match, group) => "<i>\t</i>".repeat(group.length))
+        const inScope = hasWhiteSpace || (wasIndented && isEmpty)
+        if (isEmpty) {
+          line = inScope ? "<i>\t</i>".repeat(prevIndents) : "\n"
+        }
+        wasIndented = inScope
+        prevIndents = indents
+      }
+      
+
+      const wrapper = html("span", {
+        innerHTML: line
+      })
+
+      fragment.append(wrapper)
+    })
+    const code = html("code", [fragment])
+
+    block.append(lineNumbers, code)
+  });
+}
+
 function renderMessage(role, content, modelName = document.getElementById("model").value) {
   function parseContent(text) {
     text = text.replace(/\[IMAGE\](.+)/g, (match, p1) => {
@@ -379,24 +475,46 @@ function renderMessage(role, content, modelName = document.getElementById("model
     return text;
   }
 
-  const senderLabel = html(".sender", { text: role === "user" ? "You:" : `AI (${modelName}):` })
-  const messageContent = html("pre.message-content", { innerHTML: role === "user" ? parseContent(escapeHtml(content)) : marked.parse(parseContent(content)) })
+  const senderLabel = role === "ai" ? html(".sender", { text: `AI (${modelName})` }) : null
+  const messageContent = html("pre.message-content", { 
+    innerHTML: role === "user" ? 
+      marked.parse(parseContent(escapeHtml(content))) : 
+      marked.parse(parseContent(content)) 
+  })
 
   const message = html(`.${role}`, [ senderLabel, messageContent ])
+
+  highlightCode(message)
+  
+  message.querySelectorAll("pre:has(> code)").forEach(pre => {
+    addCopyButton(pre, (pre => {
+      const code = pre.querySelector("code")
+      if (!code) return
+
+      return code.innerText
+    }))
+  });
 
   return message
 }
 
 window.onload = loadModels;
 
-// New function to toggle chat list visibility on mobile
 document.addEventListener('DOMContentLoaded', () => {
   const chatList = document.getElementById('chat-list');
-  const showChatsBtn = document.createElement('button');
-  showChatsBtn.id = 'show-chats-btn';
-  showChatsBtn.innerHTML = '💬';
-  showChatsBtn.onclick = () => {
-    chatList.classList.toggle('visible');
-  };
-  document.body.appendChild(showChatsBtn);
+  const showChatsBtn = html("button.show-chats-btn.button", {
+    innerHTML: icons.message,
+    children: html("span", { text: "Chats" }),
+    onclick: () => chatList.classList.toggle("visible")
+  })
+
+  const chatTopbar = document.querySelector(".chat-topbar")
+  chatTopbar.appendChild(showChatsBtn);
+
+  const closeChatListBtn = document.querySelector(".close-chat-list-btn")
+  closeChatListBtn.addEventListener("click", () => {
+    chatList.classList.remove("visible")
+  })
 });
+
+
