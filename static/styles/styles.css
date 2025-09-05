@@ -40,4 +40,9 @@
   .close-chat-list-btn {
     display: flex;
   }
+
+  
+  .delete-btn {
+    opacity: 1;
+  }
 }

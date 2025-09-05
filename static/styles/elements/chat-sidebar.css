@@ -26,6 +26,7 @@
   flex-direction: column;
   gap: .5rem;
   overflow: auto;
+  height: 100%;
 }
 
 #chat-list-items {
