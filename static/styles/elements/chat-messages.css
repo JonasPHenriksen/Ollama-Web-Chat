@@ -12,6 +12,8 @@
 
   min-height: max-content;
   max-width: 100%;
+  animation: bounceIn 0.3s ease-in-out;
+  transform-origin: bottom right;
 }
 
 .sender {
@@ -124,4 +126,21 @@ pre:has(> code):hover .copy-btn {
   height: 1.25rem;
   stroke: #ef4444;
   fill: #ef444435;
+}
+
+@keyframes bounceIn {
+  0% {
+    transform: translateY(100%) scale(0.9);
+    opacity: 0;
+  }
+  50% {
+    transform: translateY(-5%) scale(1.05);
+  }
+  70% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0%) scale(1);
+    opacity: 1;
+  }
 }
