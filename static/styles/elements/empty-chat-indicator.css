@@ -1,0 +1,39 @@
+#chat-window:not(:has(#chat:empty)) .empty-chat-indicator {
+  display: none;
+}
+.empty-chat-indicator {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  height: 100%;
+}
+.empty-chat-indicator .separator {
+  width: 2rem;
+  height: .25rem;
+  border-radius: var(--radius-lg);
+  background-color: #222;
+}
+.empty-chat-indicator .welcome-text {
+  font-size: 2rem;
+  text-align: center;
+}
+.empty-chat-indicator .description {
+  max-width: min(80%, 450px);
+  text-align: center;
+}
+.user-display {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+}
+
+.user-display .user-icon {
+  background-color: #222;
+  padding: 1rem;
+  border-radius: 50%;
+}
+.user-icon svg {
+  width: 2rem;
+  height: 2rem;
+}
