@@ -202,7 +202,12 @@ async function sendMessage() {
   const imagePreview = document.getElementById("image-preview");
 
   if (prompt.trim()) {
-    chat.appendChild(renderMessage("user", prompt));
+    const message = renderMessage("user", prompt);
+    message.classList.add("animate-in")
+    chat.appendChild(message);
+    setTimeout(() => {
+      message.classList.remove("animate-in")
+    }, 1000);
     document.getElementById("prompt").value = "";
   }
 

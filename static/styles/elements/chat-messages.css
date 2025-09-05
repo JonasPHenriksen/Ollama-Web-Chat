@@ -12,8 +12,11 @@
 
   min-height: max-content;
   max-width: 100%;
-  animation: bounceIn 0.3s ease-in-out;
   transform-origin: bottom right;
+}
+
+.animate-in {
+  animation: bounceIn 0.3s ease-in-out;
 }
 
 .sender {
