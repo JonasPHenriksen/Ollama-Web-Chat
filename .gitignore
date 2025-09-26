@@ -224,3 +224,5 @@ ollama-web/
 chat_history.json
 uploads/
 summaries_debug.txt
+server.crt
+server.key
