@@ -83,7 +83,6 @@ async function switchChat(chatId) {
     localStorage.setItem("lastChatId", chatId);
     loadChatHistory();
 
-    // Hide chat list on mobile after switching chat
     if (window.innerWidth <= 768) {
       document.getElementById('chat-list').classList.remove('visible');
     }
@@ -163,7 +162,6 @@ async function loadChatHistory() {
 
     document.querySelector(".chat-name").textContent = chatTitle
 
-    // Batch render messages
     const messages = history.map(msg => renderMessage(msg.role, msg.content, savedModel));
     chat.append(...messages)
     chat.scrollTop = chat.scrollHeight;
@@ -219,10 +217,10 @@ async function sendMessage() {
       chat.appendChild(image)
     };
     reader.readAsDataURL(imageFile);
-    document.getElementById("image-upload").value = ""; // Clear file input
-    fileIndicator.style.display = 'none'; // Hide indicator after sending
-    imagePreview.style.display = 'none'; // Hide preview
-    imagePreview.src = '#'; // Clear preview source
+    document.getElementById("image-upload").value = ""; 
+    fileIndicator.style.display = 'none'; 
+    imagePreview.style.display = 'none'; 
+    imagePreview.src = '#'; 
   }
 
   modelSelect.style.display = 'none';
@@ -304,7 +302,6 @@ document.getElementById("prompt").addEventListener("keydown", function(event) {
   }
 });
 
-// Event listener for image input change to show preview
 document.getElementById("image-upload").addEventListener("change", function() {
   const fileIndicator = document.getElementById("file-indicator");
   const imagePreview = document.getElementById("image-preview");
@@ -324,16 +321,15 @@ document.getElementById("image-upload").addEventListener("change", function() {
   }
 });
 
-// Event listener for the clear button
 document.getElementById("clear-image-btn").addEventListener("click", function(event) {
-  event.stopPropagation(); // Prevent label click from re-opening file dialog
+  event.stopPropagation(); 
   const imageInput = document.getElementById("image-upload");
   const imagePreview = document.getElementById("image-preview");
   
-  imageInput.value = ""; // Reset the file input
-  imagePreview.src = '#'; // Clear preview source
-  imagePreview.style.display = 'none'; // Hide preview
-  document.getElementById("file-indicator").style.display = 'none'; // Hide clear button
+  imageInput.value = ""; 
+  imagePreview.src = '#'; 
+  imagePreview.style.display = 'none'; 
+  document.getElementById("file-indicator").style.display = 'none'; 
 });
 
 async function updateVRAM() {
@@ -384,11 +380,11 @@ const settings = {
 
 function detectIndent(text) {
   const lines = text.split("\n")
-    .map(line => line.match(/^( +)/)) // only spaces
-    .filter(Boolean) // only indented lines
+    .map(line => line.match(/^( +)/)) 
+    .filter(Boolean) 
     .map(m => m[0].length);
 
-  if (lines.length < 2) return 2; // fallback
+  if (lines.length < 2) return 2;
 
   const diffs = {};
   for (let i = 1; i < lines.length; i++) {
@@ -398,7 +394,6 @@ function detectIndent(text) {
     }
   }
 
-  // Pick the most frequent diff
   const indentSize = parseInt(Object.keys(diffs).sort((a, b) => diffs[b] - diffs[a])[0]);
   return indentSize || 2;
 }
@@ -413,10 +408,9 @@ function highlightCode(root = document) {
 
     const indentSize = detectIndent(text)
 
-    // Create line numbers
     const lineNumbers = html("numbers")
     if (settings.lineNumbers) {
-      text = text.replace(/\s+$/, '') // Remove whitespace from end of string
+      text = text.replace(/\s+$/, '') 
       const lines = text.split("\n")
       for (let i = 0; i < lines.length; i++) {
         const number = html("number")
@@ -438,10 +432,8 @@ function highlightCode(root = document) {
       if (settings.indentLines) {
         const indents = matches ? matches[0].split("\t").length - 1 : 0
 
-        // Check if whitespace in front of string
         const hasWhiteSpace = /^[\s\uFEFF\xA0]+/.test(line) 
 
-        // Replace all tabs in front of the line with indentation line wrappers
         line = line.replace(/^(\t+)/, (match, group) => "<i>\t</i>".repeat(group.length))
         const inScope = hasWhiteSpace || (wasIndented && isEmpty)
         if (isEmpty) {
@@ -454,6 +446,7 @@ function highlightCode(root = document) {
 
       const wrapper = html("span", {
         innerHTML: line
+        + (line.trim() !== "" ? "\n" : ""),
       })
 
       fragment.append(wrapper)
