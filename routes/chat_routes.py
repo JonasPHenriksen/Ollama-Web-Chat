@@ -92,7 +92,8 @@ def get_history():
 
     return jsonify({
         "history": chat_data.get("history", []),
-        "model": chat_data.get("model", None)
+        "model": chat_data.get("model", None),
+        "title": chat_data.get("title", "New Chat")
     })
 
 def build_conversation_text(all_histories, user_id, max_recent=5):

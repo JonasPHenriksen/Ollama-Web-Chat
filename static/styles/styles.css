@@ -1,0 +1,48 @@
+@import url("./primitive.css");
+@import url("./code-block-theme.css");
+
+@import url("./elements/empty-chat-indicator.css");
+@import url("./elements/chat-messages.css");
+@import url("./elements/chat-input.css");
+@import url("./elements/chat-sidebar.css");
+@import url("./elements/chat-window.css");
+
+#chat-container {
+	display: flex;
+	flex: 1;
+	min-height: 0;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+	#chat-list {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 85%;
+		max-width: 300px;
+		height: 100%;
+		margin: 0;
+		z-index: 999;
+		transform: translateX(-100%);
+		padding-bottom: 2rem;
+		box-sizing: border-box;
+	}
+
+	#chat-list.visible {
+		transform: translateX(0);
+		box-shadow: 2px 0 10px rgba(0, 0, 0, 0.5);
+	}
+
+	.show-chats-btn {
+		display: flex;
+	}
+  .close-chat-list-btn {
+    display: flex;
+  }
+
+  
+  .delete-btn {
+    opacity: 1;
+  }
+}
