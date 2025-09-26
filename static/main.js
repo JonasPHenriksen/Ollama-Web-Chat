@@ -116,7 +116,7 @@ async function deleteChat(event, chatId) {
     const chatListItems = document.getElementById("chat-list-items");
     if (chatListItems.children.length > 0) {
       const firstChatId = chatListItems.children[0].dataset.id;
-      if (firstChatId) await switchChat(firstChatId);
+      await startNewChat();
     } else {
       document.getElementById("chat").innerHTML = "";
       document.getElementById("model").style.display = 'block';
