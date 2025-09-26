@@ -103,8 +103,13 @@ def build_conversation_text(all_histories, user_id, max_recent=5):
     parts = []
     if summaries:
         parts.append(f"system: Previous conversation summary:\n{summaries[-1]['content']}")
-    
-    parts.extend([f"{msg['role']}: {msg['content']}" for msg in recent_messages])
+
+    for msg in recent_messages:
+        content = msg['content']
+        if 'attachments' in msg and msg['attachments']:
+            for attachment_path in msg['attachments']:
+                content += f"\n[IMAGE]{attachment_path}"
+        parts.append(f"{msg['role']}: {content}")
 
     return "\n".join(parts)
 
@@ -121,13 +126,14 @@ def ask_stream():
     user_content = prompt if prompt else ""
     all_histories = load_all_chat_histories()
 
-    image_path = None
+    attachments = []
+
     if image_file:
         upload_dir = os.path.join(os.getcwd(), "uploads")
         os.makedirs(upload_dir, exist_ok=True)
         image_path = os.path.join(upload_dir, image_file.filename)
         image_file.save(image_path)
-        user_content += f"\n[IMAGE]{image_path}"
+        attachments.append(image_path)  
 
     if user_id not in all_histories or not all_histories[user_id]["history"]:
         title = generate_chat_title(prompt, model)
@@ -138,8 +144,11 @@ def ask_stream():
             "model": model
         }
 
-    if user_content.strip():
-        all_histories[user_id]["history"].append({"role": "user", "content": user_content})
+    if user_content.strip() or attachments:
+        entry = {"role": "user", "content": user_content}
+        if attachments:
+            entry["attachments"] = attachments
+        all_histories[user_id]["history"].append(entry)
 
     conversation_text = build_conversation_text(all_histories, user_id)
 
