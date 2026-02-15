@@ -156,7 +156,7 @@ async function loadChatHistory(modelName = document.getElementById("model").valu
     const data = await res.json();
     const history = data.history;
     const savedModel = data.model;
-    const chatTitle = data.title + " : " + modelName;
+    const chatTitle = data.title + " ("+modelName+")";
 
     const chat = document.getElementById("chat");
     chat.innerHTML = "";
