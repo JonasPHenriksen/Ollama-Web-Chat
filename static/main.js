@@ -150,13 +150,13 @@ function addCopyButton(element, textSelector) {
   element.appendChild(copyBtn);
 }
 
-async function loadChatHistory() {
+async function loadChatHistory(modelName = document.getElementById("model").value) {
   try {
     const res = await fetch("/history");
     const data = await res.json();
     const history = data.history;
     const savedModel = data.model;
-    const chatTitle = data.title;
+    const chatTitle = data.title + " : " + modelName;
 
     const chat = document.getElementById("chat");
     chat.innerHTML = "";
@@ -474,7 +474,7 @@ function renderMessage(role, content, modelName = document.getElementById("model
     return text;
   }
 
-  const senderLabel = role === "ai" ? html(".sender", { text: `AI (${modelName})` }) : null
+  const senderLabel = role === "ai" ? html(".sender", { text: `${modelName}` }) : null
   const messageContent = html("pre.message-content", { 
     innerHTML: role === "user" ? 
       marked.parse(parseContent(escapeHtml(content))) : 
