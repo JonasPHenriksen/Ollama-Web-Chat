@@ -78,7 +78,7 @@ def ask_stream():
             full_response_content += content
 
         all_histories[user_id]["history"].append({
-            "role": "assistant",
+            "role": "ai",
             "content": full_response_content
         })
         save_all_chat_histories(all_histories)
