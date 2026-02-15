@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Ollama Web Chat</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/styles.css') }}">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
@@ -17,6 +16,8 @@
     {% endfor %}
     <script defer src="{{ url_for('static', filename='html.js') }}"></script>
     <script defer src="{{ url_for('static', filename='main.js') }}"></script>
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+    <title>Ollama Web Chat</title>
 </head>
 <body>
     <div id="chat-container">
