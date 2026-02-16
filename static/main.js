@@ -270,7 +270,7 @@ async function sendMessage() {
 
       const shouldScroll = isUserAtBottom(chat);
       aiDiv.innerHTML = ""
-      aiDiv.appendChild(renderMessage("", result, model))
+      aiDiv.appendChild(renderMessage("assistant", result, model))
 
       if (shouldScroll) {
         chat.scrollTop = chat.scrollHeight;
