@@ -33,7 +33,7 @@ def ask_stream():
         return "No active chat found.", 400
 
     prompt = request.form.get("prompt", "")
-    model = request.form.get("model", "gemma:4b")
+    model = request.form.get("model", "gemma:12b")
     image_file = request.files.get("image")
 
     all_histories = load_all_chat_histories()

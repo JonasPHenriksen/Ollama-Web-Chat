@@ -352,7 +352,7 @@ async function updateVRAM() {
 setInterval(updateVRAM, 30000);
 updateVRAM();
 
-async function askStream(prompt, model = "gemma:4b") {
+async function askStream(prompt, model = "gemma:12b") {
   const res = await fetch("/ask_stream", {
     method: "POST",
     headers: {
@@ -507,8 +507,8 @@ document.addEventListener('DOMContentLoaded', () => {
     onclick: () => chatList.classList.toggle("visible")
   })
 
-  const chatTopbar = document.querySelector(".chat-topbar")
-  chatTopbar.appendChild(showChatsBtn);
+  //const chatTopbar = document.querySelector(".chat-topbar")
+  //chatTopbar.appendChild(showChatsBtn);
 
   const closeChatListBtn = document.querySelector(".close-chat-list-btn")
   closeChatListBtn.addEventListener("click", () => {
