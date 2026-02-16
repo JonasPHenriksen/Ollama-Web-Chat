@@ -507,8 +507,8 @@ document.addEventListener('DOMContentLoaded', () => {
     onclick: () => chatList.classList.toggle("visible")
   })
 
-  //const chatTopbar = document.querySelector(".chat-topbar")
-  //chatTopbar.appendChild(showChatsBtn);
+  const chatTopbar = document.querySelector(".chat-topbar")
+  chatTopbar.appendChild(showChatsBtn);
 
   const closeChatListBtn = document.querySelector(".close-chat-list-btn")
   closeChatListBtn.addEventListener("click", () => {
