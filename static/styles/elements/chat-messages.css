@@ -1,4 +1,4 @@
-.ai {
+.assistant {
   padding: .75rem;
   border-radius: var(--radius-md);
   background-color: #222;
@@ -24,7 +24,7 @@
   font-weight: bold;
 }
 
-.ai .sender {
+.assistant .sender {
   padding-bottom: 1rem;
 }
 
@@ -106,7 +106,7 @@ pre:has(> code):hover .copy-btn {
   word-wrap: break-word;
 }
 
-.user img, .ai img {
+.user img, .assistant img {
   max-width: 80%;
   border-radius: 6px;
   margin: 5px 0;
