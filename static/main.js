@@ -270,7 +270,7 @@ async function sendMessage() {
 
       const shouldScroll = isUserAtBottom(chat);
       aiDiv.innerHTML = ""
-      aiDiv.appendChild(renderMessage("ai", result, model))
+      aiDiv.appendChild(renderMessage("", result, model))
 
       if (shouldScroll) {
         chat.scrollTop = chat.scrollHeight;
@@ -278,7 +278,7 @@ async function sendMessage() {
     }
 
   } catch (error) {
-    const message = renderMessage("ai", error.message, model)
+    const message = renderMessage("assistant", error.message, model)
     message.classList.add("error-message")
     message.appendChild(html(".error-indicator", {
       innerHTML: icons.octagonAlert
@@ -474,7 +474,7 @@ function renderMessage(role, content, modelName = document.getElementById("model
     return text;
   }
 
-  const senderLabel = role === "ai" ? html(".sender", { text: `${modelName}` }) : null
+  const senderLabel = role === "assistant" ? html(".sender", { text: `${modelName}` }) : null
   const messageContent = html("pre.message-content", { 
     innerHTML: role === "user" ? 
       marked.parse(parseContent(escapeHtml(content))) : 
