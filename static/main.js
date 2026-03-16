@@ -504,19 +504,38 @@ window.onload = loadModels;
 
 document.addEventListener('DOMContentLoaded', () => {
   const chatList = document.getElementById('chat-list');
-  const showChatsBtn = html("button.show-chats-btn.button", {
+  const showChatsBtn = html("button.show-chats-btn.floating-chat-btn.button", {
     innerHTML: icons.message,
     children: html("span", { text: "Chats" }),
-    onclick: () => chatList.classList.toggle("visible")
-  })
+    onclick: () => chatList.classList.add("visible")
+  });
 
-  const chatTopbar = document.querySelector(".chat-topbar")
-  chatTopbar.appendChild(showChatsBtn);
+  document.body.appendChild(showChatsBtn);
 
-  const closeChatListBtn = document.querySelector(".close-chat-list-btn")
-  closeChatListBtn.addEventListener("click", () => {
-    chatList.classList.remove("visible")
-  })
+  const observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      if (mutation.attributeName === 'class') {
+        const isVisible = chatList.classList.contains('visible');
+        if (isVisible) {
+          showChatsBtn.classList.add("hidden");
+        } else {
+          showChatsBtn.classList.remove("hidden");
+        }
+      }
+    });
+  });
+
+  observer.observe(chatList, { attributes: true });
+
+  const closeBtn = document.querySelector(".close-chat-list-btn");
+  closeBtn.addEventListener("click", () => chatList.classList.remove("visible"));
+
+  const newChatBtn = document.querySelector(".new-chat-btn"); 
+  if (newChatBtn) {
+    newChatBtn.addEventListener("click", () => {
+      chatList.classList.remove("visible");
+    });
+  }
 });
 
 const chat = document.getElementById("chat");
