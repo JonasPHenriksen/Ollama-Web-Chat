@@ -1,6 +1,6 @@
-#chat-window:not(:has(#chat:empty)) .empty-chat-indicator {
+/* #chat-window:not(:has(#chat:empty)) .empty-chat-indicator {
   display: none;
-}
+} */
 .empty-chat-indicator {
   display: flex;
   justify-content: center;

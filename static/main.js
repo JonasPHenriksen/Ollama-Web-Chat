@@ -556,3 +556,18 @@ chat.addEventListener("click", (e) => {
     document.body.appendChild(popup);
   }
 })
+
+const indicator = document.querySelector(".empty-chat-indicator");
+
+function updateIndicator() {
+  if (chat.children.length > 0) {
+    indicator.style.display = "none";
+  } else {
+    indicator.style.display = "";
+  }
+}
+
+updateIndicator();
+
+const observer = new MutationObserver(updateIndicator);
+observer.observe(chat, { childList: true });
