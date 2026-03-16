@@ -25,7 +25,6 @@
 		margin: 0;
 		z-index: 999;
 		transform: translateX(-100%);
-		padding-bottom: 2rem;
 		box-sizing: border-box;
 	}
 
