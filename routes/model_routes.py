@@ -11,7 +11,6 @@ def models():
             return jsonify({"error": "Failed to list models", "details": result.stderr}), 500
         
         lines = result.stdout.splitlines()
-        # Skip header and extract model names
         model_names = [line.split()[0] for line in lines[1:] if line.strip()]
         return jsonify(model_names)
     except Exception as e:

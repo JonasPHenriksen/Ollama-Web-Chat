@@ -173,6 +173,9 @@ async function loadChatHistory(modelName = document.getElementById("model").valu
       modelSelect.style.display = 'block';
       modelSelect.disabled = false;
     }
+    if (modelSelect.options.length > 0 && !modelSelect.value) {
+        modelSelect.selectedIndex = 0; 
+      }
   } catch (error) {
     console.error("Error loading chat history:", error);
   }
