@@ -263,7 +263,10 @@ async function sendMessage() {
         value,
         done
       } = await reader.read();
-      if (done) break;
+      if (done) {
+        await loadChatList(); 
+        break;
+      }
       result += decoder.decode(value, {
         stream: true
       });

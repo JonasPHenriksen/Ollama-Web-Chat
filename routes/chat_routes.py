@@ -1,13 +1,14 @@
 from flask import Blueprint, request, session, jsonify, Response, stream_with_context, send_from_directory
 from services.chat_service import (
+    generate_chat_title,
     load_chat_history,
     save_chat_history,
-    generate_chat_title,
     load_all_chat_histories,
     save_all_chat_histories
 )
 import os
 import ollama
+import threading
 
 chat_bp = Blueprint("chat", __name__)
 
@@ -37,15 +38,16 @@ def ask_stream():
     image_file = request.files.get("image")
 
     all_histories = load_all_chat_histories()
-
+    
     if user_id not in all_histories or not all_histories[user_id]["history"]:
+            
         title = generate_chat_title(prompt, model)
         all_histories[user_id] = {
-            "title": title,
+            "title": title,  
             "history": [],
             "model": model
         }
-
+            
     current_images = []
     if image_file:
         upload_dir = os.path.join(os.getcwd(), "uploads")

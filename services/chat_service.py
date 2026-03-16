@@ -1,7 +1,7 @@
 import json
 import os
 from config import CHAT_HISTORY_FILE
-import subprocess
+import ollama
 
 def load_all_chat_histories():
     if os.path.exists(CHAT_HISTORY_FILE):
@@ -30,20 +30,13 @@ def save_chat_history(user_id, chat_data):
     all_histories[user_id] = chat_data
     save_all_chat_histories(all_histories)
 
-def generate_chat_title(prompt, model="gemma:12b"):
+def generate_chat_title(prompt, model):
     try:
-        title_prompt = (
-            f"User message: '{prompt}'"
-        )
-        title_process = subprocess.run(
-            ["ollama", "run", model, "--think=false"],
-            input=title_prompt,
-            capture_output=True,
-            text=True,
-            timeout=10
-        )
-        if title_process.returncode != 0:
-            return "New Chat"
-        return title_process.stdout.strip().replace('"', '')[:50]
-    except Exception:
-        return "New Chat"
+        response = ollama.chat(model=model, messages=[
+            {'role': 'user', 'content': f"Create a 3-6 word title for this chat based on this message: {prompt}. Output only the title text."}
+        ])
+
+        return response['message']['content'].strip().replace('"', '')[:40]
+        
+    except Exception as e:
+        print(f"Title generation error: {e}")
