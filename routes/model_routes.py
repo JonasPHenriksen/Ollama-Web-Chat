@@ -1,5 +1,6 @@
 from flask import Blueprint, jsonify
 import subprocess
+import ollama
 
 model_bp = Blueprint("model", __name__)
 
@@ -13,5 +14,17 @@ def models():
         lines = result.stdout.splitlines()
         model_names = [line.split()[0] for line in lines[1:] if line.strip()]
         return jsonify(model_names)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@model_bp.route('/model_info/<model_name>')
+def get_model_info(model_name):
+    try:
+        info = ollama.show(model_name)
+        if "vision" in info.capabilities:
+            return jsonify({"has_vision": True})
+        else:
+            return jsonify({"has_vision": False})
+                
     except Exception as e:
         return jsonify({"error": str(e)}), 500

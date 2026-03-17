@@ -8,6 +8,9 @@ const icons = {
   x: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>`
 }
 
+const modelSelect = document.getElementById("model");
+modelSelect.addEventListener("change", updateVisionSupport);
+
 async function loadModels() {
   try {
     const res = await fetch("/models");
@@ -23,6 +26,7 @@ async function loadModels() {
           text: model
         })
         select.add(option);
+        updateVisionSupport();
       });
     }
     loadChatList();
@@ -572,3 +576,34 @@ updateIndicator();
 
 const observer = new MutationObserver(updateIndicator);
 observer.observe(chat, { childList: true });
+
+async function updateVisionSupport() {
+    const modelName = document.getElementById("model").value;
+    const uploadBtn = document.getElementById("image-upload");
+    const uploadLabel = document.querySelector("label[for='image-upload']");
+
+    try {
+        const response = await fetch(`/model_info/${modelName}`);
+        const data = await response.json();
+
+        if (data.has_vision) {
+            uploadBtn.disabled = false;
+            if (uploadLabel) uploadLabel.style.opacity = "1"; 
+            if (uploadLabel) uploadLabel.style.pointerEvents = "auto";
+        } else {
+            uploadBtn.disabled = true;
+            if (uploadLabel) uploadLabel.style.opacity = "0";
+            if (uploadLabel) uploadLabel.style.pointerEvents = "none";
+            
+            clearImage(); 
+        }
+    } catch (error) {
+        console.error("Error checking vision capabilities:", error);
+    }
+}
+
+function clearImage() {
+    document.getElementById("image-upload").value = "";
+    document.getElementById("image-preview").style.display = 'none';
+    document.getElementById("file-indicator").style.display = 'none';
+}
