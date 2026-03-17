@@ -468,23 +468,24 @@ function highlightCode(root = document) {
 
 function renderMessage(role, content, modelName = document.getElementById("model").value) {
   function parseContent(text) {
-    text = text.replace(/\[IMAGE\](.+)/g, (match, p1) => {
-      let imgPath = p1.trim();
-      const uploadsIndex = imgPath.indexOf("/uploads/");
-      if (uploadsIndex !== -1) imgPath = imgPath.substring(uploadsIndex + 1);
-      return `<br><img src="${imgPath}" style="max-width: 30%; border-radius: 6px;">`;
+    return text.replace(/\[IMAGE\]([^\s\n]+)/g, (match, imgPath) => {
+      let src = imgPath.trim();
+      if (!src.startsWith('http') && !src.startsWith('/')) {
+        src = '/' + src;
+      }
+      return `<br><img src="${src}" class="chat-restored-image" style="max-width: 30%; border-radius: 6px; cursor: pointer;">`;
     });
-    return text;
   }
 
-  const senderLabel = role === "assistant" ? html(".sender", { text: `${modelName}` }) : null
+  const senderLabel = role === "assistant" ? html(".sender", { text: `${modelName}` }) : null;
+  
+  const processedContent = parseContent(role === "user" ? escapeHtml(content) : content);
+  
   const messageContent = html("pre.message-content", { 
-    innerHTML: role === "user" ? 
-      marked.parse(parseContent(escapeHtml(content))) : 
-      marked.parse(parseContent(content)) 
-  })
+    innerHTML: marked.parse(processedContent) 
+  });
 
-  const message = html(`.${role}`, [ senderLabel, messageContent ])
+  const message = html(`.${role}`, [ senderLabel, messageContent ]);
 
   highlightCode(message)
   

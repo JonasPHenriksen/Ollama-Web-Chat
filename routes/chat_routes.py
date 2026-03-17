@@ -54,7 +54,14 @@ def ask_stream():
         os.makedirs(upload_dir, exist_ok=True)
         image_path = os.path.join(upload_dir, image_file.filename)
         image_file.save(image_path)
+        
+        web_path = f"/uploads/{image_file.filename}"
         current_images.append(image_path)
+        
+        if prompt:
+            prompt += f"\n[IMAGE]{web_path}"
+        else:
+            prompt = f"[IMAGE]{web_path}"
 
     user_message = {"role": "user", "content": prompt}
     if current_images:
